@@ -1,15 +1,18 @@
 import React, { useState } from "react";
-import { Drawer, DrawerHeader, DrawerItems } from "flowbite-react";
+import { Button, Drawer, DrawerHeader, DrawerItems } from "flowbite-react";
 import { FaPen } from "react-icons/fa";
-
+import { MdEditNote } from "react-icons/md";
 
 function EditUserProfile() {
-  const [isOpen, setIsOpen] = useState(true); // Open drawer by default
+  const [isOpen, setIsOpen] = useState(false); // Open drawer by default
 
   const handleClose = () => setIsOpen(false);
 
   return (
     <div>
+       <div className="flex  items-center justify-center">
+        <Button className=" !bg-amber-950" onClick={() => setIsOpen(true)}><MdEditNote className="text-4xl" /></Button>
+      </div>
 
       <Drawer open={isOpen} onClose={handleClose}>
         <div className="bg-white text-black min-h-full px-6 py-4">
