@@ -30,9 +30,9 @@ function App() {
     <>
       <Routes>
         <Route path='/' element={isLoading ? <Home /> : <Preloader />} />
-        <Route path='/login' element={<Auth />} />
+       
         <Route path='/register' element={<Auth register />} />
-
+        <Route path='/login' element={<Auth />} />
         <Route path='/allBooks' element={<AllBooks />} />
         <Route path='/viewBook/:id' element={<ViewBook />} />
         <Route path='/careers' element={<Careers />} />
