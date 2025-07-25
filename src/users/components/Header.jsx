@@ -51,7 +51,7 @@ function Header() {
         alt="user icon"
         className="w-10 h-10 rounded-full object-cover"
       />
-      
+
     </div>
   }
 >
@@ -91,14 +91,16 @@ function Header() {
 }
         <NavbarToggle />
       </div>
-      {/* <NavbarCollapse>
+      
+        <NavbarCollapse>
         <NavbarLink href="/" active>
           Home
         </NavbarLink>
         <Link to="/allBooks" className=' !text-amber-100 '>Books</Link>
         <Link to="/careers" className=' !text-amber-100 '>Careers</Link>
         <Link to="/contact" className=' !text-amber-100 '>Contact</Link>
-      </NavbarCollapse> */}
+      </NavbarCollapse>
+      
     </Navbar>  </div>
   )
 }
