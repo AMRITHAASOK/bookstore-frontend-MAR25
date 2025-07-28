@@ -1,14 +1,108 @@
-import React, { useState } from 'react'
+import React, { use, useEffect, useState } from 'react'
 import Header from '../components/Header'
 import { FaCheckCircle } from 'react-icons/fa';
 import { RiImageAddFill } from "react-icons/ri";
 import EditProfile from '../components/EditProfile';
+import { ToastContainer, toast } from 'react-toastify';
+import { uploadBookAPI } from '../../services/allAPIs';
 
 function Profile() {
-   const [sellstatus, setsellstatus] = useState(true)
+    const [sellstatus, setsellstatus] = useState(true)
     const [bookstatus, setbookstatus] = useState(false)
     const [purchaseStatus, setpurchaseStatus] = useState(false)
+
+    //To hold book details,
+    const [bookDetails,setBookDetails]=useState({
+        title:"",author:"",noofpages:"",imageUrl:"",price:"",dprice:"", abstract:"",publisher:"",language:"",isbn:"",category:"",UploadedImages:[]
+    })
+    console.log(bookDetails);
+    //to hold image url
+    const [preview,setPreview]=useState("")
+
+    //to hold list of image 
+    const [previewList,setPreviewList]= useState([])
+
+    const [token,setToken]=useState("")
+    
+    const handleUpload=(e)=>{
+        //image value 
+        console.log(e.target.files[0]);
+        //to hold 3 images
+        let imgArray = bookDetails.UploadedImages
+        imgArray.push(e.target.files[0])
+        console.log(imgArray);
+        setBookDetails({...bookDetails,UploadedImages:imgArray})
+        //obj to url conversion
+        const url = URL.createObjectURL(e.target.files[0])
+        console.log(url);
+        setPreview(url)
+        //create a new array for holding image list
+        let imgListArray = previewList
+        imgListArray.push(url)
+        setPreviewList(imgListArray)
+    }
+
+    const handleReset=()=>{
+        setBookDetails({
+                    title:"",author:"",noofpages:"",imageUrl:"",price:"",dprice:"", abstract:"",publisher:"",language:"",isbn:"",category:"",UploadedImages:[]
+        })
+        setPreview("")
+        setPreviewList([])
+    }
+
+    const handleAddBook=async()=>{
+        //get values from the state using destructuring
+        const { title,author,noofpages,imageUrl,price,dprice, abstract,publisher,language,isbn,category,UploadedImages} = bookDetails
+       
+        if(!title || !author || !noofpages || !imageUrl || !price || !dprice || !abstract ||!publisher || !language || !isbn || !category || !UploadedImages){
+            toast.warn("Please fill the form!", {
+                    position: "top-center",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: false,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "light",
+                  })
+        }
+        else{
+            //ADD API
+            //create request header , includes token
+            const reqHeader = {
+                Authorization : `Bearer ${token}`
+            }
+
+            const reqBody = new FormData()
+            // reqBody.append("title",title)
+            for (let key in bookDetails){
+               if(key != UploadedImages){
+                 reqBody.append(key,bookDetails[key])
+               }
+               else{
+                bookDetails.UploadedImages.forEach((item)=>(
+                    reqBody.append("UploadedImages",item)
+                ))
+               } 
+            }
+            try{
+                const result = await uploadBookAPI(reqBody,reqHeader)
+                console.log(result);   
+            }
+            catch(err){
+                console.log(err);
+                
+            }
+
+        }
+    }
+
+   useEffect(()=>{ 
+   setToken(sessionStorage.getItem("token")) 
+   },[])
   
+   console.log(token);
+   
   return (
     <div>
       <Header/>
@@ -16,7 +110,7 @@ function Profile() {
    
 
       
-      <div className="bg-white pt-32 pb-16 rounded-t-3xl relative">
+      <div className="bg-white pt-32 pb-16  relative">
       
         <div className="absolute -top-24 left-24">
           <div className="w-48 h-48 rounded-full overflow-hidden border-4 border-white shadow-lg">
@@ -75,66 +169,76 @@ function Profile() {
                         <div className="md:grid grid-cols-2 mt-10 w-full">
                             <div className='px-3'>
                                 <div className="mb-3">
-                                    <input type="text"  placeholder='Title' className='p-2 bg-white rounded placeholder-gray-300 w-full' />
+                                    <input type="text" value={bookDetails.title} onChange={(e)=>setBookDetails({...bookDetails,title:e.target.value})}  placeholder='Title' className='p-2 bg-white rounded placeholder-gray-300 w-full' />
                                 </div>
                                 <div className="mb-3">
-                                    <input type="text"  placeholder='Author' className='p-2 bg-white rounded placeholder-gray-300 w-full'
+                                    <input type="text" value={bookDetails.author} onChange={(e)=>setBookDetails({...bookDetails,author:e.target.value})}  placeholder='Author' className='p-2 bg-white rounded placeholder-gray-300 w-full'
                                          />
                                 </div>
                                 <div className="mb-3">
-                                    <input type="text"  placeholder='No of Pages' className='p-2 bg-white rounded placeholder-gray-300 w-full'  />
+                                    <input type="text" value={bookDetails.noofpages} onChange={(e)=>setBookDetails({...bookDetails,noofpages:e.target.value})}  placeholder='No of Pages' className='p-2 bg-white rounded placeholder-gray-300 w-full'  />
                                 </div>
                                 <div className="mb-3">
-                                    <input type="text"  placeholder='Image url' className='p-2 bg-white rounded placeholder-gray-300 w-full'  />
+                                    <input type="text" value={bookDetails.imageUrl} onChange={(e)=>setBookDetails({...bookDetails,imageUrl:e.target.value})}  placeholder='Image url' className='p-2 bg-white rounded placeholder-gray-300 w-full'  />
                                 </div>
                                 <div className="mb-3">
-                                    <input type="text" placeholder='Price' className='p-2 bg-white rounded placeholder-gray-300 w-full'  />
+                                    <input type="text" value={bookDetails.price} onChange={(e)=>setBookDetails({...bookDetails,price:e.target.value})} placeholder='Price' className='p-2 bg-white rounded placeholder-gray-300 w-full'  />
                                 </div>
                                 <div className="mb-3">
-                                    <input type="text"  placeholder='discount price' className='p-2 bg-white rounded placeholder-gray-300 w-full'  />
+                                    <input type="text" value={bookDetails.dprice}  onChange={(e)=>setBookDetails({...bookDetails,dprice:e.target.value})} placeholder='discount price' className='p-2 bg-white rounded placeholder-gray-300 w-full'  />
                                 </div>
                                 <div className="mb-3">
-                                    <textarea rows={5} placeholder='Abstract' className='p-2 bg-white rounded placeholder-gray-300 w-full' ></textarea>
+                                    <textarea rows={5} value={bookDetails.abstract} onChange={(e)=>setBookDetails({...bookDetails,abstract:e.target.value})} placeholder='Abstract' className='p-2 bg-white rounded placeholder-gray-300 w-full' ></textarea>
                                 </div>
                             </div>
                             <div className='px-3'>
                                 <div className="mb-3">
-                                    <input type="text"  placeholder='Publisher' className='p-2 bg-white rounded placeholder-gray-300 w-full' />
+                                    <input type="text" value={bookDetails.publisher} onChange={(e)=>setBookDetails({...bookDetails,publisher:e.target.value})}  placeholder='Publisher' className='p-2 bg-white rounded placeholder-gray-300 w-full' />
                                 </div>
                                 <div className="mb-3">
-                                    <input type="text"  placeholder='Language' className='p-2 bg-white rounded placeholder-gray-300 w-full' />
+                                    <input type="text" value={bookDetails.language} onChange={(e)=>setBookDetails({...bookDetails,language:e.target.value})}  placeholder='Language' className='p-2 bg-white rounded placeholder-gray-300 w-full' />
                                 </div>
                                 <div className="mb-3">
-                                    <input type="text"  placeholder='ISBN' className='p-2 bg-white rounded placeholder-gray-300 w-full' />
+                                    <input type="text" value={bookDetails.isbn} onChange={(e)=>setBookDetails({...bookDetails,isbn:e.target.value})}  placeholder='ISBN' className='p-2 bg-white rounded placeholder-gray-300 w-full' />
                                 </div>
                                 <div className="mb-3">
-                                    <input type="text"  placeholder='Category' className='p-2 bg-white rounded placeholder-gray-300 w-full'  />
+                                    <input type="text" value={bookDetails.category} onChange={(e)=>setBookDetails({...bookDetails,category:e.target.value})}  placeholder='Category' className='p-2 bg-white rounded placeholder-gray-300 w-full'  />
                                 </div>
 
                                 <div className="mb-3 flex justify-center items-center w-full mt-10">
                                      <label htmlFor="imagefile">
-                                        <input id='imagefile' type="file" style={{ display: 'none' }}  />
-                                        <img src="https://cdn.pixabay.com/photo/2016/01/03/00/43/upload-1118929_1280.png" alt="no image" style={{ width: '200px', height: '200px' }} />
+                                        <input  id='imagefile' type="file" style={{ display: 'none' }}  onChange={(e)=>handleUpload(e)} />
+                                        
+                                        <img src={preview?preview:"https://cdn.pixabay.com/photo/2016/01/03/00/43/upload-1118929_1280.png" } alt="no image" style={{ width: '200px', height: '200px' }} />
                                     </label> 
 
                                 </div>
 
-                             <div className='flex justify-center items-center'>
+                             {
+                                preview && <div className='flex justify-center items-center'>
                                    
-                                        <img src="https://img.freepik.com/premium-photo/dummy-book-magazine-catalog-realistic-book_1008415-38718.jpg" alt="no image" style={{ width: '70px', height: '70px' }} className='mx-3' />
-                                  
-                                  <label htmlFor="imagefile">
+                                {
+                                    previewList?.map(item=>(
+                            <img src={item} alt="no image" style={{ width: '70px', height: '70px' }} className='mx-3' />
+
+  )) 
+                                }                                 
+                                {
+                                    previewList?.length<3 && <label htmlFor="imagefile">
                                         <input id='imagefile' type="file" style={{ display: 'none' }}  />
                                      <RiImageAddFill className='text-2xl text-blue-600' />
                                     </label>
+                                     
+                                }
 
                                 </div>
+                             }
                                 
                             </div>
                         </div>
                         <div className='flex md:justify-end justify-center mt-8'>
-                            <button className='bg-amber-600 rounde text-black p-3 rounded hover:bg-white hover:border hover:border-amber-600 hover:text-amber-600'>Reset</button>
-                            <button  className='bg-green-600 rounde text-white p-3 rounded hover:bg-white hover:border hover:border-green-600 hover:text-green-600 ms-4'>Submit</button>
+                            <button onClick={handleReset} className='bg-amber-600 rounde text-black p-3 rounded hover:bg-white hover:border hover:border-amber-600 hover:text-amber-600' >Reset</button>
+                            <button onClick={handleAddBook}  className='bg-green-600 rounde text-white p-3 rounded hover:bg-white hover:border hover:border-green-600 hover:text-green-600 ms-4'>Submit</button>
                         </div>
 
                     </div>}
@@ -206,6 +310,7 @@ function Profile() {
 
                     </div>
                 }
+                  <ToastContainer />
     </div>
   )
 }

@@ -13,3 +13,8 @@ export const LoginAPI =(reqBody)=>{
 export const GoogleLoginAPI =(reqBody)=>{
     return commonAPI('POST',`${serverURL}/api/google-login`,reqBody,{})
 }
+
+
+export const uploadBookAPI = (reqBody,reqHeader)=>{
+    return commonAPI('POST',`${serverURL}/api/addBook`,reqBody,reqHeader)
+}
